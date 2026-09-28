@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stories - TuneFlix</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #0e7490;
+            --primary-dark: #1e1045;
+            --bg-color: #0f0f1a;
+            --card-bg: #1a1a2e;
+            --text-primary: #ede9fe;
+            --text-secondary: #8b85a8;
+            --border-color: #2d2b3d;
+            --hover-bg: #252538;
+            --accent-green: #06b6d4;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0f0f1a;
+            min-height: 100vh;
+            color: var(--text-primary);
+        }
+
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background-color: #0d0d1a;
+            border-bottom: 1px solid var(--border-color);
+            padding: 14px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .nav-left h1 {
+            font-size: 24px;
+            font-weight: 700;
+            color: #67e8f9;
+            cursor: pointer;
+            letter-spacing: -0.5px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 100px auto 40px;
+            padding: 0 20px;
+        }
+
+        .stories-header {
+            margin-bottom: 32px;
+        }
+
+        .stories-header h1 {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .stories-header p {
+            font-size: 16px;
+            color: var(--text-secondary);
+        }
+
+        .info-banner {
+            background: #1a1a2e;
+            border: 1px solid #2d2b3d;
+            border-radius: 12px;
+            padding: 16px 20px;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .info-banner-icon {
+            font-size: 24px;
+        }
+
+        .info-banner-text {
+            flex: 1;
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .info-banner-text strong {
+            color: var(--text-primary);
+        }
+
+        .stories-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 24px;
+        }
+
+        .story-card {
+            background-color: var(--card-bg);
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            position: relative;
+        }
+
+        .story-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        .story-preview {
+            width: 100%;
+            height: 280px;
+            background: linear-gradient(135deg, #0e7490 0%, #1e1045 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--card-bg);
+            font-size: 64px;
+            position: relative;
+        }
+
+        .story-timer {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            backdrop-filter: blur(10px);
+        }
+
+        .story-user-info {
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .story-avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: var(--accent-green);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--card-bg);
+            font-weight: 700;
+            font-size: 18px;
+        }
+
+        .story-username {
+            flex: 1;
+        }
+
+        .story-username-text {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .story-time {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 2px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+            background-color: var(--card-bg);
+            border-radius: 16px;
+            border: 2px solid var(--border-color);
+        }
+
+        .empty-state-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+        }
+
+        .empty-state h3 {
+            font-size: 24px;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .empty-state p {
+            color: var(--text-secondary);
+            font-size: 15px;
+        }
+
+        @media (max-width: 768px) {
+            .stories-grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+                gap: 16px;
+            }
+
+            .story-preview {
+                height: 220px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-left" style="display:flex;align-items:center;gap:12px;">
+            <a href="javascript:history.back()" title="Go back" style="color:#8b85a8;text-decoration:none;display:flex;align-items:center;transition:color 0.2s;">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+            </a>
+            <h1 onclick="window.location.href='{% url 'main_page' %}'">TuneFlix</h1>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="stories-header">
+            <h1>⭕ Stories</h1>
+            <p>View active stories from people you follow</p>
+        </div>
+
+        <div class="info-banner">
+            <div class="info-banner-icon">⏱️</div>
+            <div class="info-banner-text">
+                <strong>24-Hour Stories:</strong> All stories automatically disappear after 24 hours. Watch them before they're gone!
+            </div>
+        </div>
+
+        <div class="stories-grid">
+            {% if user_stories %}
+                {% for item in user_stories %}
+                <div class="story-card">
+                    <div class="story-preview">
+                        {% if item.story.image %}
+                            <img src="{{ item.story.image.url }}" style="width: 100%; height: 100%; object-fit: cover;">
+                        {% else %}
+                            📷
+                        {% endif %}
+                        <div class="story-timer">⏱️ {{ item.story.time_remaining }}</div>
+                    </div>
+                    <div class="story-user-info">
+                        <div class="story-avatar">
+                            {{ item.user.username.0|upper }}
+                        </div>
+                        <div class="story-username">
+                            <div class="story-username-text">{{ item.user.username }}</div>
+                            <div class="story-time">{{ item.story.created_at|timesince }} ago</div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="empty-state" style="grid-column: 1 / -1;">
+                    <div class="empty-state-icon">⭕</div>
+                    <h3>No active stories</h3>
+                    <p>Stories from people you follow will appear here</p>
+                    <p style="margin-top: 12px; font-size: 13px;">💡 Stories disappear after 24 hours</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>

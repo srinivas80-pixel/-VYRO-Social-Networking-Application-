@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Story - TuneFlix</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background-color: #0f0f1a;
+            min-height: 100vh;
+            color: #ede9fe;
+        }
+
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background-color: #0d0d1a;
+            border-bottom: 1px solid #2d2b3d;
+            padding: 14px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+        }
+
+        .nav-left h1 {
+            font-size: 24px;
+            font-weight: 700;
+            color: #67e8f9;
+            cursor: pointer;
+            letter-spacing: -0.5px;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: 100px auto 40px;
+            padding: 0 20px;
+        }
+
+        .create-card {
+            background-color: #1a1a2e;
+            border-radius: 16px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+            border: 1px solid #2d2b3d;
+            overflow: hidden;
+        }
+
+        .card-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid #2d2b3d;
+            text-align: center;
+        }
+
+        .card-header h2 {
+            font-size: 20px;
+            font-weight: 700;
+            color: #ede9fe;
+        }
+
+        .card-header p {
+            font-size: 13px;
+            color: #8b85a8;
+            margin-top: 6px;
+        }
+
+        .card-body {
+            padding: 24px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 14px;
+            color: #ede9fe;
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .file-input-label {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 60px 20px;
+            border: 2px dashed #2d2b3d;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            background-color: #0f0f1a;
+        }
+
+        .file-input-label:hover {
+            border-color: #06b6d4;
+            background-color: #1a1040;
+        }
+
+        .file-input-label .icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+        }
+
+        .file-input-label span {
+            color: #8b85a8;
+            font-size: 14px;
+        }
+
+        input[type="file"] {
+            position: absolute;
+            left: -9999px;
+        }
+
+        .preview-area {
+            margin-top: 16px;
+            display: none;
+        }
+
+        .preview-area.active {
+            display: block;
+        }
+
+        .preview-image {
+            width: 100%;
+            border-radius: 10px;
+            margin-top: 12px;
+        }
+
+        .messages {
+            margin-bottom: 20px;
+        }
+
+        .alert {
+            padding: 12px 16px;
+            border-radius: 10px;
+            margin-bottom: 12px;
+            font-size: 14px;
+        }
+
+        .alert-success {
+            background-color: #150d30;
+            color: #67e8f9;
+            border: 1px solid #1e1045;
+        }
+
+        .alert-error {
+            background-color: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+        }
+
+        .errorlist {
+            list-style: none;
+            padding: 0;
+            margin: 8px 0 0 0;
+        }
+
+        .errorlist li {
+            color: #ef4444;
+            font-size: 12px;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: 'Inter', sans-serif;
+            text-decoration: none;
+            text-align: center;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background-color: #06b6d4;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #0e7490;
+        }
+
+        .btn-secondary {
+            background-color: #1a1a2e;
+            color: #8b85a8;
+            border: 1px solid #2d2b3d;
+        }
+
+        .btn-secondary:hover {
+            background-color: #2d2b3d;
+        }
+
+        .info-text {
+            text-align: center;
+            color: #8b85a8;
+            font-size: 12px;
+            margin-top: 16px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-left" style="display:flex;align-items:center;gap:12px;">
+            <a href="javascript:history.back()" title="Go back" style="color:#8b85a8;text-decoration:none;display:flex;align-items:center;transition:color 0.2s;">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+            </a>
+            <h1 onclick="window.location.href='{% url 'main_page' %}'">TuneFlix</h1>
+        </div>
+    </nav>
+
+    <div class="container">
+        {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <div class="create-card">
+            <div class="card-header">
+                <h2>Add to Your Story</h2>
+                <p>Share a moment that disappears in 24 hours</p>
+            </div>
+
+            <div class="card-body">
+                <form method="POST" action="{% url 'create_story' %}" enctype="multipart/form-data">
+                    {% csrf_token %}
+
+                    <div class="form-group">
+                        <label class="form-label">Upload Image</label>
+                        <div class="file-input-wrapper">
+                            <label for="id_image" class="file-input-label">
+                                <div class="icon">📷</div>
+                                <span>Click to upload an image</span>
+                            </label>
+                            {{ form.image }}
+                        </div>
+                        <div class="preview-area" id="previewArea">
+                            <img id="previewImage" class="preview-image" src="" alt="Preview">
+                        </div>
+                        {% if form.image.errors %}
+                            <ul class="errorlist">
+                                {% for error in form.image.errors %}
+                                <li>{{ error }}</li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+                    </div>
+
+                    {% if form.non_field_errors %}
+                    <div class="alert alert-error">
+                        {% for error in form.non_field_errors %}
+                        {{ error }}
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    <p class="info-text">⏱️ Your story will be visible for 24 hours</p>
+
+                    <div class="buttons">
+                        <a href="{% url 'main_page' %}" class="btn btn-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-primary">Add Story</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Image preview
+        document.getElementById('id_image').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('previewImage').src = e.target.result;
+                    document.getElementById('previewArea').classList.add('active');
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+    </script>
+</body>
+</html>

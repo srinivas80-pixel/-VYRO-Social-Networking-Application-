@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% block title %}{{ title }} - @{{ profile_user.username }} - VYRO{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="page-header-row">
+        <button class="back-btn" onclick="history.back()">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M7.414 13l5.043 5.04-1.414 1.42L3.586 12l7.457-7.46 1.414 1.42L7.414 11H21v2H7.414z"/></svg>
+        </button>
+        <div>
+            <h1 style="font-size:20px;">{{ profile_user.get_display_name }}</h1>
+            <div style="color:var(--text-secondary);font-size:13px;">@{{ profile_user.username }}</div>
+        </div>
+    </div>
+    <div class="tabs">
+        <a href="{% url 'followers_list' profile_user.username %}" class="tab {% if title == 'Followers' %}active{% endif %}" style="text-decoration:none;color:inherit;">Followers</a>
+        <a href="{% url 'following_list' profile_user.username %}" class="tab {% if title == 'Following' %}active{% endif %}" style="text-decoration:none;color:inherit;">Following</a>
+    </div>
+</div>
+
+{% for u in users %}
+<div class="follow-item" style="border-bottom:1px solid var(--border);">
+    <a href="{% url 'profile_user' u.username %}">
+        {% if u.profile_picture %}
+            <img src="{{ u.profile_picture.url }}" alt="">
+        {% else %}
+            <div class="avatar-placeholder">{{ u.username.0|upper }}</div>
+        {% endif %}
+    </a>
+    <div class="follow-info" style="flex:1;">
+        <a href="{% url 'profile_user' u.username %}" class="follow-name" style="color:var(--text-primary);text-decoration:none;">{{ u.get_display_name }}</a>
+        <div class="follow-handle">@{{ u.username }}</div>
+        {% if u.bio %}<div style="font-size:14px;margin-top:4px;color:var(--text-primary);">{{ u.bio|truncatewords:15 }}</div>{% endif %}
+    </div>
+    {% if u != user %}
+    <button class="follow-btn {% if u.id in my_following_ids %}btn-following{% else %}btn-follow{% endif %}" onclick="toggleFollow(this,{{ u.id }})">
+        {% if u.id in my_following_ids %}Following{% else %}Follow{% endif %}
+    </button>
+    {% endif %}
+</div>
+{% empty %}
+<div class="empty-state"><p>No {{ title|lower }} yet.</p></div>
+{% endfor %}
+{% endblock %}

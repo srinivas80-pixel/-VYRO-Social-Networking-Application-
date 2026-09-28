@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Reel - TuneFlix</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background-color: #0f0f1a;
+            min-height: 100vh;
+            color: #ede9fe;
+        }
+
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background-color: #0d0d1a;
+            border-bottom: 1px solid #2d2b3d;
+            padding: 14px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+        }
+
+        .nav-left h1 {
+            font-size: 24px;
+            font-weight: 700;
+            color: #67e8f9;
+            cursor: pointer;
+            letter-spacing: -0.5px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 100px auto 40px;
+            padding: 0 20px;
+        }
+
+        .create-card {
+            background-color: #1a1a2e;
+            border-radius: 16px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+            border: 1px solid #2d2b3d;
+            overflow: hidden;
+        }
+
+        .card-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid #2d2b3d;
+            text-align: center;
+        }
+
+        .card-header h2 {
+            font-size: 20px;
+            font-weight: 700;
+            color: #ede9fe;
+        }
+
+        .card-header p {
+            font-size: 13px;
+            color: #8b85a8;
+            margin-top: 6px;
+        }
+
+        .card-body {
+            padding: 24px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 14px;
+            color: #ede9fe;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #2d2b3d;
+            border-radius: 10px;
+            background-color: #0f0f1a;
+            font-size: 14px;
+            outline: none;
+            transition: all 0.2s;
+            font-family: 'Inter', sans-serif;
+            color: #ede9fe;
+        }
+
+        .form-control:focus {
+            border-color: #06b6d4;
+            background-color: #1a1a2e;
+            box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.2);
+        }
+
+        textarea.form-control {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .file-input-label {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 48px 20px;
+            border: 2px dashed #2d2b3d;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            background-color: #0f0f1a;
+        }
+
+        .file-input-label:hover {
+            border-color: #06b6d4;
+            background-color: #1a1040;
+        }
+
+        .file-input-label .icon {
+            margin-bottom: 12px;
+            color: #06b6d4;
+        }
+
+        .file-input-label span {
+            color: #8b85a8;
+            font-size: 14px;
+        }
+
+        .file-input-label .limit-text {
+            color: #67e8f9;
+            font-size: 12px;
+            font-weight: 600;
+            margin-top: 8px;
+        }
+
+        input[type="file"] {
+            position: absolute;
+            left: -9999px;
+        }
+
+        .preview-area {
+            margin-top: 16px;
+            display: none;
+        }
+
+        .preview-area.active {
+            display: block;
+        }
+
+        .preview-video {
+            width: 100%;
+            border-radius: 10px;
+            margin-top: 12px;
+            max-height: 400px;
+            background: #111;
+        }
+
+        .duration-info {
+            display: none;
+            margin-top: 12px;
+            padding: 12px 16px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .duration-info.valid {
+            display: block;
+            background: #150d30;
+            color: #67e8f9;
+            border: 1px solid #1e1045;
+        }
+
+        .duration-info.invalid {
+            display: block;
+            background: #3a1a1a;
+            color: #ef4444;
+            border: 1px solid #5c2020;
+        }
+
+        .messages {
+            margin-bottom: 20px;
+        }
+
+        .alert {
+            padding: 12px 16px;
+            border-radius: 10px;
+            margin-bottom: 12px;
+            font-size: 14px;
+        }
+
+        .alert-success {
+            background-color: #150d30;
+            color: #67e8f9;
+            border: 1px solid #1e1045;
+        }
+
+        .alert-error {
+            background-color: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+        }
+
+        .errorlist {
+            list-style: none;
+            padding: 0;
+            margin: 8px 0 0 0;
+        }
+
+        .errorlist li {
+            color: #ef4444;
+            font-size: 12px;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: 'Inter', sans-serif;
+            text-decoration: none;
+            text-align: center;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background-color: #06b6d4;
+            color: #ede9fe;
+        }
+
+        .btn-primary:hover {
+            background-color: #0e7490;
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background-color: #1a1a2e;
+            color: #8b85a8;
+            border: 1px solid #2d2b3d;
+        }
+
+        .btn-secondary:hover {
+            background-color: #2d2b3d;
+        }
+
+        .timer-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #1e1045;
+            color: #67e8f9;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            margin-top: 8px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-left" style="display:flex;align-items:center;gap:12px;">
+            <a href="javascript:history.back()" title="Go back" style="color:#8b85a8;text-decoration:none;display:flex;align-items:center;transition:color 0.2s;">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+            </a>
+            <h1 onclick="window.location.href='{% url 'main_page' %}'">TuneFlix</h1>
+        </div>
+    </nav>
+
+    <div class="container">
+        {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <div class="create-card">
+            <div class="card-header">
+                <h2>Create New Reel</h2>
+                <p>Share a short video clip with your followers</p>
+                <div class="timer-badge">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                    Max 30 seconds
+                </div>
+            </div>
+
+            <div class="card-body">
+                <form method="POST" action="{% url 'create_reel' %}" enctype="multipart/form-data" id="reelForm">
+                    {% csrf_token %}
+
+                    <div class="form-group">
+                        <label class="form-label">Upload Video</label>
+                        <div class="file-input-wrapper">
+                            <label for="id_video" class="file-input-label" id="uploadLabel">
+                                <div class="icon">
+                                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"/><line x1="7" y1="2" x2="7" y2="22"/><line x1="17" y1="2" x2="17" y2="22"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="2" y1="7" x2="7" y2="7"/><line x1="2" y1="17" x2="7" y2="17"/><line x1="17" y1="7" x2="22" y2="7"/><line x1="17" y1="17" x2="22" y2="17"/></svg>
+                                </div>
+                                <span>Click to upload a video</span>
+                                <span class="limit-text">Maximum duration: 30 seconds</span>
+                            </label>
+                            {{ form.video }}
+                        </div>
+                        <div class="preview-area" id="previewArea">
+                            <video id="previewVideo" class="preview-video" controls></video>
+                            <div class="duration-info" id="durationInfo"></div>
+                        </div>
+                        {% if form.video.errors %}
+                            <ul class="errorlist">
+                                {% for error in form.video.errors %}
+                                <li>{{ error }}</li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="id_caption">Caption</label>
+                        {{ form.caption }}
+                        {% if form.caption.errors %}
+                            <ul class="errorlist">
+                                {% for error in form.caption.errors %}
+                                <li>{{ error }}</li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+                    </div>
+
+                    <div class="buttons">
+                        <a href="{% url 'main_page' %}" class="btn btn-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-primary" id="submitBtn">Share Reel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('id_video').addEventListener('change', function(e) {
+            var file = e.target.files[0];
+            if (!file) return;
+
+            var video = document.getElementById('previewVideo');
+            var previewArea = document.getElementById('previewArea');
+            var durationInfo = document.getElementById('durationInfo');
+            var submitBtn = document.getElementById('submitBtn');
+            var url = URL.createObjectURL(file);
+
+            video.src = url;
+            previewArea.classList.add('active');
+
+            video.addEventListener('loadedmetadata', function() {
+                var duration = Math.round(video.duration);
+
+                if (duration <= 30) {
+                    durationInfo.className = 'duration-info valid';
+                    durationInfo.textContent = 'Duration: ' + duration + 's — Ready to share!';
+                    submitBtn.disabled = false;
+                } else {
+                    durationInfo.className = 'duration-info invalid';
+                    durationInfo.textContent = 'Duration: ' + duration + 's — Video must be 30 seconds or less. Please trim your video.';
+                    submitBtn.disabled = true;
+                }
+            });
+        });
+
+        document.getElementById('reelForm').addEventListener('submit', function(e) {
+            var video = document.getElementById('previewVideo');
+            if (video.duration && video.duration > 30) {
+                e.preventDefault();
+                alert('Video must be 30 seconds or less.');
+            }
+        });
+    </script>
+</body>
+</html>

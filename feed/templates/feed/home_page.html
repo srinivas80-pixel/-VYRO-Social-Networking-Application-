@@ -1,0 +1,963 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TuneFlix - Connect & Share</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #06b6d4;
+            --primary-dark: #0e7490;
+            --primary-light: #67e8f9;
+            --bg-color: #0f0f1a;
+            --card-bg: #1a1a2e;
+            --text-primary: #ede9fe;
+            --text-secondary: #8b85a8;
+            --border-color: #2d2b3d;
+            --hover-bg: #252538;
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.2);
+            --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.3);
+            --bottomnav-bg: #1e1045;
+            --bottomnav-text: #a78bfa;
+            --bottomnav-active: #ede9fe;
+            --header-bg: #0d0d1a;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg-color);
+            min-height: 100vh;
+            color: var(--text-primary);
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url("{% static 'images/register-bg.jpeg' %}") center/cover no-repeat;
+            z-index: -2;
+        }
+
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(10, 5, 20, 0.65);
+            z-index: -1;
+        }
+
+        /* Top Header */
+        .top-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            background: rgba(13, 13, 26, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 16px;
+            z-index: 100;
+        }
+
+        .logo h1 {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary-light);
+            letter-spacing: -0.5px;
+            cursor: pointer;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .header-icon {
+            color: var(--bottomnav-text);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            position: relative;
+            transition: color 0.2s;
+        }
+
+        .header-icon:hover {
+            color: var(--bottomnav-active);
+        }
+
+        .notification-badge {
+            background-color: #ef4444;
+            color: white;
+            border-radius: 10px;
+            padding: 1px 5px;
+            font-size: 10px;
+            font-weight: 600;
+            position: absolute;
+            top: -6px;
+            right: -8px;
+            min-width: 16px;
+            text-align: center;
+        }
+
+        /* Bottom Navigation */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 56px;
+            background: rgba(30, 16, 69, 0.75);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-top: 1px solid rgba(255,255,255,0.08);
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            z-index: 100;
+            box-shadow: 0 -2px 12px rgba(0,0,0,0.3);
+        }
+
+        .bottom-nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            color: var(--bottomnav-text);
+            padding: 8px 16px;
+            transition: color 0.2s;
+            position: relative;
+            cursor: pointer;
+            background: none;
+            border: none;
+            font-family: inherit;
+        }
+
+        .bottom-nav-item:hover {
+            color: var(--bottomnav-active);
+        }
+
+        .bottom-nav-item.active {
+            color: var(--bottomnav-active);
+        }
+
+        .bottom-nav-item.active::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 24px;
+            height: 2px;
+            background: var(--bottomnav-active);
+            border-radius: 2px;
+        }
+
+        .bottom-nav-label {
+            font-size: 10px;
+            font-weight: 500;
+            margin-top: 2px;
+        }
+
+        /* Search Panel */
+        .search-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.6);
+            z-index: 200;
+            display: none;
+            align-items: flex-end;
+            justify-content: center;
+        }
+
+        .search-overlay.active {
+            display: flex;
+        }
+
+        .search-panel {
+            width: 100%;
+            max-width: 600px;
+            max-height: 80vh;
+            background: rgba(26, 26, 46, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 20px 20px 0 0;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+
+        .search-panel-header {
+            padding: 20px 20px 0;
+        }
+
+        .search-panel-header h3 {
+            font-size: 18px;
+            font-weight: 700;
+            color: #ede9fe;
+            margin-bottom: 16px;
+        }
+
+        .search-input-wrapper {
+            display: flex;
+            align-items: center;
+            background: #0f0f1a;
+            border: 1px solid #2d2b3d;
+            border-radius: 12px;
+            padding: 10px 14px;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .search-input-wrapper svg {
+            color: #8b85a8;
+            flex-shrink: 0;
+        }
+
+        .search-input {
+            flex: 1;
+            border: none;
+            outline: none;
+            background: transparent;
+            font-size: 15px;
+            font-family: 'Inter', sans-serif;
+            color: #ede9fe;
+        }
+
+        .search-input::placeholder {
+            color: #8b85a8;
+        }
+
+        .search-tabs {
+            display: flex;
+            border-bottom: 1px solid #2d2b3d;
+        }
+
+        .search-tab {
+            flex: 1;
+            padding: 12px 0;
+            text-align: center;
+            font-size: 13px;
+            font-weight: 600;
+            color: #8b85a8;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+            background: none;
+            border-top: none;
+            border-left: none;
+            border-right: none;
+            font-family: inherit;
+        }
+
+        .search-tab:hover {
+            color: #ede9fe;
+        }
+
+        .search-tab.active {
+            color: #67e8f9;
+            border-bottom-color: #67e8f9;
+        }
+
+        .search-panel-body {
+            padding: 16px 20px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .search-tab-content {
+            display: none;
+        }
+
+        .search-tab-content.active {
+            display: block;
+        }
+
+        .search-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 12px 0;
+            border-bottom: 1px solid #252538;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .search-item:last-child {
+            border-bottom: none;
+        }
+
+        .search-item:hover {
+            background: #252538;
+            margin: 0 -20px;
+            padding-left: 20px;
+            padding-right: 20px;
+        }
+
+        .search-item-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            background: var(--bottomnav-bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #67e8f9;
+            flex-shrink: 0;
+        }
+
+        .search-item-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .search-item-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #ede9fe;
+            margin-bottom: 2px;
+        }
+
+        .search-item-meta {
+            font-size: 12px;
+            color: #8b85a8;
+        }
+
+        .search-close {
+            position: absolute;
+            top: 16px;
+            right: 20px;
+            background: none;
+            border: none;
+            color: #8b85a8;
+            cursor: pointer;
+            padding: 4px;
+            transition: color 0.2s;
+        }
+
+        .search-close:hover {
+            color: #ede9fe;
+        }
+
+        /* Main Content */
+        .main-content {
+            padding: 76px 24px 72px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Post Feed */
+        .feed {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .post-card {
+            background: rgba(26, 26, 46, 0.7);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 16px;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+            transition: box-shadow 0.2s ease;
+        }
+
+        .post-card:hover {
+            box-shadow: var(--shadow-md);
+        }
+
+        .post-header {
+            display: flex;
+            align-items: center;
+            padding: 16px 20px;
+            gap: 12px;
+        }
+
+        .post-avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: var(--primary-dark);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ede9fe;
+            font-weight: 600;
+            font-size: 18px;
+        }
+
+        .post-user-info {
+            flex: 1;
+        }
+
+        .post-username {
+            font-weight: 600;
+            font-size: 14px;
+            color: var(--text-primary);
+        }
+
+        .post-time {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 2px;
+        }
+
+        .post-menu {
+            cursor: pointer;
+            font-size: 20px;
+            color: var(--text-secondary);
+            padding: 4px 8px;
+            border-radius: 6px;
+            transition: background-color 0.2s;
+        }
+
+        .post-menu:hover {
+            background-color: var(--hover-bg);
+        }
+
+        .post-image {
+            width: 100%;
+            min-height: 420px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #0f0f1a 0%, #252538 100%);
+            color: var(--primary-light);
+            font-size: 64px;
+            border-top: 1px solid var(--border-color);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .post-actions {
+            display: flex;
+            padding: 12px 20px;
+            gap: 16px;
+        }
+
+        .action-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 22px;
+            color: var(--text-primary);
+            padding: 6px;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .action-btn:hover {
+            background-color: var(--hover-bg);
+            transform: scale(1.1);
+        }
+
+        .post-likes {
+            padding: 0 20px 10px;
+            font-weight: 600;
+            font-size: 14px;
+            color: var(--text-primary);
+        }
+
+        .post-caption {
+            padding: 0 20px 10px;
+            font-size: 14px;
+            color: var(--text-primary);
+            line-height: 1.5;
+        }
+
+        .post-caption strong {
+            font-weight: 600;
+            margin-right: 6px;
+        }
+
+        .view-comments {
+            padding: 0 20px 10px;
+            font-size: 14px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .view-comments:hover {
+            color: var(--primary-color);
+        }
+
+        .add-comment {
+            padding: 14px 20px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .comment-input {
+            flex: 1;
+            border: none;
+            outline: none;
+            font-size: 14px;
+            font-family: 'Inter', sans-serif;
+            color: var(--text-primary);
+            background: transparent;
+        }
+
+        .comment-input::placeholder {
+            color: var(--text-secondary);
+        }
+
+        .post-btn {
+            background-color: var(--primary-color);
+            border: none;
+            color: #ede9fe;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 13px;
+            padding: 8px 18px;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .post-btn:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .no-content {
+            background-color: var(--card-bg);
+            border-radius: 16px;
+            padding: 60px 40px;
+            text-align: center;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-color);
+        }
+
+        .no-content h3 {
+            font-size: 24px;
+            margin-bottom: 12px;
+            color: var(--text-primary);
+        }
+
+        .no-content p {
+            color: var(--text-secondary);
+            font-size: 15px;
+            line-height: 1.6;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #0f0f1a;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #444;
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #4a4860;
+        }
+
+        /* Stories Strip */
+        .stories-strip {
+            padding: 16px 0;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .stories-scroll {
+            overflow-x: auto;
+            white-space: nowrap;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+        .stories-scroll::-webkit-scrollbar { display: none; }
+        .stories-row {
+            display: flex;
+            gap: 16px;
+        }
+        .story-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            min-width: 68px;
+            transition: transform 0.2s;
+        }
+        .story-item:hover { transform: translateY(-2px); }
+        .story-ring {
+            width: 62px;
+            height: 62px;
+            border-radius: 50%;
+            padding: 3px;
+            background: linear-gradient(45deg, #06b6d4, #8b5cf6, #a855f7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        .story-inner {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: #1a1a2e;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-primary);
+            border: 2px solid var(--bg-color);
+        }
+        .story-name {
+            font-size: 11px;
+            margin-top: 6px;
+            color: var(--text-primary);
+            font-weight: 500;
+            max-width: 68px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            text-align: center;
+        }
+        .story-item.my-story .story-ring {
+            background: linear-gradient(45deg, #2a2845, #3d3960);
+        }
+        .story-item.my-story.has-story .story-ring {
+            background: linear-gradient(45deg, #06b6d4, #67e8f9);
+        }
+        .story-item.my-story .story-name {
+            color: var(--primary-light);
+            font-weight: 600;
+        }
+        .add-badge {
+            position: absolute;
+            bottom: -2px;
+            right: -2px;
+            width: 20px;
+            height: 20px;
+            background: #06b6d4;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid var(--bg-color);
+            z-index: 2;
+        }
+        .story-timer {
+            font-size: 9px;
+            color: var(--primary-light);
+            margin-top: 2px;
+            font-weight: 600;
+        }
+
+        /* Post Settings Dropdown */
+        .post-settings-wrap { position: relative; }
+        .post-settings-dropdown {
+            display: none;
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: rgba(26, 26, 46, 0.95);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 8px 0;
+            min-width: 150px;
+            z-index: 50;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+        }
+        .post-settings-dropdown.show { display: block; }
+        .post-settings-dropdown button {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            width: 100%;
+            padding: 10px 16px;
+            background: none;
+            border: none;
+            color: var(--text-primary);
+            font-size: 13px;
+            font-family: 'Inter', sans-serif;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .post-settings-dropdown button:hover { background: var(--hover-bg); }
+        .post-settings-dropdown .delete-btn { color: #ef4444; }
+
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 70px 12px 72px;
+            }
+
+            .bottom-nav-label {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Top Header -->
+    <header class="top-header">
+        <img src="{% static vyro home.jpeg %}">
+        <div class="logo" style="display:flex;align-items:center;gap:12px;">
+            <a href="javascript:history.back()" class="header-icon" title="Go back">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+            </a>
+            <h1 onclick="window.location.href='{% url 'main_page' %}'">TuneFlix</h1>
+        </div>
+        <div class="header-actions">
+            <a href="{% url 'create_post' %}" class="header-icon" title="Create Post">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+            </a>
+            <a href="#" class="header-icon" title="Notifications">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+            </a>
+            <a href="#" class="header-icon" title="Messages">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                {% if unread_messages_count > 0 %}<span class="notification-badge">{{ unread_messages_count }}</span>{% endif %}
+            </a>
+        </div>
+    </header>
+
+    <!-- Bottom Navigation -->
+    <nav class="bottom-nav">
+        <img src="{% static sidebar.jpeg %}">
+        <a href="{% url 'home_page' %}" class="bottom-nav-item active">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            <span class="bottom-nav-label">Home</span>
+        </a>
+        <a href="{% url 'create_post' %}" class="bottom-nav-item">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            <span class="bottom-nav-label">Posts</span>
+        </a>
+        <a href="{% url 'create_reel' %}" class="bottom-nav-item">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"/><line x1="7" y1="2" x2="7" y2="22"/><line x1="17" y1="2" x2="17" y2="22"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="2" y1="7" x2="7" y2="7"/><line x1="2" y1="17" x2="7" y2="17"/><line x1="17" y1="7" x2="22" y2="7"/><line x1="17" y1="17" x2="22" y2="17"/></svg>
+            <span class="bottom-nav-label">Reels</span>
+        </a>
+        <button class="bottom-nav-item" onclick="toggleSearch()">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <span class="bottom-nav-label">Search</span>
+        </button>
+        <a href="{% url 'view_stories' %}" class="bottom-nav-item">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>
+            <span class="bottom-nav-label">Stories</span>
+        </a>
+        <a href="{% url 'profile' %}" class="bottom-nav-item">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 1 0-16 0"/></svg>
+            <span class="bottom-nav-label">Profile</span>
+        </a>
+    </nav>
+
+    <!-- Search Overlay -->
+    <div class="search-overlay" id="searchOverlay" onclick="if(event.target===this)toggleSearch()">
+        <div class="search-panel">
+            <div class="search-panel-header" style="position:relative;">
+                <h3>Search</h3>
+                <button class="search-close" onclick="toggleSearch()">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+                <div class="search-input-wrapper">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    <input type="text" class="search-input" placeholder="Search trending reels, feed, locations...">
+                </div>
+                <div class="search-tabs">
+                    <button class="search-tab active" onclick="switchSearchTab('trending', this)">Trending Reels</button>
+                    <button class="search-tab" onclick="switchSearchTab('feed', this)">Feed</button>
+                    <button class="search-tab" onclick="switchSearchTab('locations', this)">Locations</button>
+                </div>
+            </div>
+            <div class="search-panel-body">
+                <div id="search-trending" class="search-tab-content active">
+                    <div style="padding:32px 0;text-align:center;color:var(--text-secondary);">
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:12px;opacity:0.5;"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                        <p style="font-size:14px;">No trending reels yet</p>
+                    </div>
+                </div>
+                <div id="search-feed" class="search-tab-content">
+                    <div style="padding:32px 0;text-align:center;color:var(--text-secondary);">
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:12px;opacity:0.5;"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                        <p style="font-size:14px;">No feed results yet</p>
+                    </div>
+                </div>
+                <div id="search-locations" class="search-tab-content">
+                    <div style="padding:32px 0;text-align:center;color:var(--text-secondary);">
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:12px;opacity:0.5;"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                        <p style="font-size:14px;">No locations yet</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Stories Strip -->
+        <div class="stories-strip">
+            <div class="stories-scroll">
+                <div class="stories-row">
+                    {% if user_stories %}
+                    <div class="story-item my-story has-story" onclick="window.location.href='{% url 'view_stories' %}'">
+                        <div class="story-ring">
+                            <div class="story-inner">{{ request.user.username.0|upper }}</div>
+                        </div>
+                        <div class="story-name">Your Story</div>
+                        <div class="story-timer">{{ user_stories.0.expires_at|timeuntil }}</div>
+                    </div>
+                    {% else %}
+                    <div class="story-item my-story" onclick="window.location.href='{% url 'create_story' %}'">
+                        <div class="story-ring">
+                            <div class="story-inner">{{ request.user.username.0|upper }}</div>
+                            <div class="add-badge">
+                                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                            </div>
+                        </div>
+                        <div class="story-name">Add Story</div>
+                    </div>
+                    {% endif %}
+
+                    {% for story in stories %}
+                    {% if story.user != request.user %}
+                    <div class="story-item" onclick="window.location.href='{% url 'view_stories' %}'">
+                        <div class="story-ring">
+                            <div class="story-inner">{{ story.user.username.0|upper }}</div>
+                        </div>
+                        <div class="story-name">{{ story.user.username }}</div>
+                    </div>
+                    {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <div class="feed">
+            {% if posts %}
+                {% for post in posts %}
+                <div class="post-card">
+                    <div class="post-header">
+                        <div class="post-avatar">{{ post.user.username.0|upper }}</div>
+                        <div class="post-user-info">
+                            <div class="post-username">{{ post.user.username }}</div>
+                            <div class="post-time">{{ post.created_at|timesince }} ago</div>
+                        </div>
+                        <div class="post-settings-wrap">
+                            <div class="post-menu" onclick="togglePostSettings(this)">&bull;&bull;&bull;</div>
+                            {% if post.user == request.user %}
+                            <div class="post-settings-dropdown">
+                                <form method="POST" action="{% url 'delete_post' post.id %}" onsubmit="return confirm('Delete this post?')">
+                                    {% csrf_token %}
+                                    <button type="submit" class="delete-btn">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                                        Delete Post
+                                    </button>
+                                </form>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="post-image">
+                        {% if post.image %}
+                            <img src="{{ post.image.url }}" style="width: 100%; height: 100%; object-fit: cover;">
+                        {% else %}
+                            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                        {% endif %}
+                    </div>
+
+                    <div class="post-actions">
+                        <button class="action-btn"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button>
+                        <button class="action-btn"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></button>
+                        <button class="action-btn"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>
+                        <button class="action-btn" style="margin-left: auto;"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg></button>
+                    </div>
+
+                    <div class="post-likes">{{ post.likes_count|default:"0" }} likes</div>
+
+                    {% if post.caption %}
+                    <div class="post-caption">
+                        <strong>{{ post.user.username }}</strong>{{ post.caption }}
+                    </div>
+                    {% endif %}
+
+                    <div class="view-comments">View all comments</div>
+
+                    <div class="add-comment">
+                        <input type="text" class="comment-input" placeholder="Add a comment...">
+                        <button class="post-btn">Post</button>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="no-content">
+                    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="var(--primary-light)" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 20px;"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                    <h3>No tweets yet</h3>
+                    <p>Be the first to post.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <script>
+        function toggleSearch() {
+            var overlay = document.getElementById('searchOverlay');
+            overlay.classList.toggle('active');
+            if (overlay.classList.contains('active')) {
+                overlay.querySelector('.search-input').focus();
+            }
+        }
+
+        function togglePostSettings(btn) {
+            var dropdown = btn.parentElement.querySelector('.post-settings-dropdown');
+            if (!dropdown) return;
+            document.querySelectorAll('.post-settings-dropdown.show').forEach(function(d) {
+                if (d !== dropdown) d.classList.remove('show');
+            });
+            dropdown.classList.toggle('show');
+        }
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.post-menu') && !e.target.closest('.post-settings-dropdown')) {
+                document.querySelectorAll('.post-settings-dropdown.show').forEach(function(d) { d.classList.remove('show'); });
+            }
+        });
+
+        function switchSearchTab(tabName, btn) {
+            document.querySelectorAll('.search-tab').forEach(function(t) { t.classList.remove('active'); });
+            document.querySelectorAll('.search-tab-content').forEach(function(c) { c.classList.remove('active'); });
+            btn.classList.add('active');
+            document.getElementById('search-' + tabName).classList.add('active');
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% block title %}Bookmarks - VYRO{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Bookmarks</h1>
+    <div style="color:var(--text-secondary);font-size:13px;padding:0 0 12px;">@{{ user.username }}</div>
+</div>
+
+{% for post in posts %}
+    {% include 'includes/post_card.html' with post=post liked_ids=liked_ids|default:"" reposted_ids=reposted_ids|default:"" bookmarked_ids=bookmarked_ids|default:"" %}
+{% empty %}
+<div class="empty-state">
+    <h3>Save posts for later</h3>
+    <p>Bookmark posts to easily find them again.</p>
+</div>
+{% endfor %}
+{% endblock %}

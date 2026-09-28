@@ -1,0 +1,210 @@
+{% extends 'base.html' %}
+{% block title %}{{ post.user.get_display_name }} on VYRO{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="page-header-row">
+        <button class="back-btn" onclick="history.back()">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M7.414 13l5.043 5.04-1.414 1.42L3.586 12l7.457-7.46 1.414 1.42L7.414 11H21v2H7.414z"/></svg>
+        </button>
+        <h1>Post</h1>
+    </div>
+</div>
+
+<!-- Main Post -->
+<div style="padding:12px 16px;border-bottom:1px solid var(--border);">
+    <div style="display:flex;gap:12px;margin-bottom:12px;">
+        <a href="{% url 'profile_user' post.user.username %}">
+            {% if post.user.profile_picture %}
+                <img src="{{ post.user.profile_picture.url }}" style="width:48px;height:48px;border-radius:50%;object-fit:cover;" alt="">
+            {% else %}
+                <div class="avatar-placeholder" style="width:48px;height:48px;font-size:18px;">{{ post.user.username.0|upper }}</div>
+            {% endif %}
+        </a>
+        <div style="flex:1;">
+            <div><a href="{% url 'profile_user' post.user.username %}" style="font-weight:700;color:var(--text-primary);text-decoration:none;">{{ post.user.get_display_name }}</a></div>
+            <div style="color:var(--text-secondary);">@{{ post.user.username }}</div>
+        </div>
+        <div class="post-menu-wrap" style="position:relative;">
+            <button class="post-more" onclick="togglePostMenu(this)" title="More">
+                <svg viewBox="0 0 24 24" fill="currentColor" style="width:18px;height:18px;"><path d="M3 12c0-1.1.9-2 2-2s2 .9 2 2-.9 2-2 2-2-.9-2-2zm9 2c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm7 0c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2z"/></svg>
+            </button>
+            <div class="post-dropdown">
+                {% if post.user == user %}
+                <button onclick="deletePost({{ post.id }});window.location.href='{% url 'home' %}'">
+                    <svg viewBox="0 0 24 24" fill="currentColor" style="width:18px;height:18px;"><path d="M16 9v10H8V9h8m-1.5-6h-5l-1 1H5v2h14V4h-3.5l-1-1zM18 7H6v12c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7z"/></svg>
+                    <span style="color:var(--red);">Delete Post</span>
+                </button>
+                {% endif %}
+                <button onclick="copyPostLink({{ post.id }})">
+                    <svg viewBox="0 0 24 24" fill="currentColor" style="width:18px;height:18px;"><path d="M18.36 5.64c-1.95-1.96-5.11-1.96-7.07 0L9.88 7.05 11.3 8.46l1.41-1.41c1.17-1.17 3.07-1.17 4.24 0 1.17 1.17 1.17 3.07 0 4.24l-1.41 1.41 1.41 1.41 1.41-1.41c1.96-1.95 1.96-5.12 0-7.07zm-2.12 3.53l-7.07 7.07-1.41-1.41 7.07-7.07 1.41 1.41zm-4.95 2.12l-1.41 1.41c-1.17 1.17-3.07 1.17-4.24 0-1.17-1.17-1.17-3.07 0-4.24l1.41-1.41-1.41-1.41-1.41 1.41c-1.96 1.95-1.96 5.12 0 7.07 1.95 1.96 5.11 1.96 7.07 0l1.41-1.41-1.41-1.41z"/></svg>
+                    <span>Copy Link</span>
+                </button>
+                <button onclick="openShareModal({{ post.id }})">
+                    <svg viewBox="0 0 24 24" fill="currentColor" style="width:18px;height:18px;"><path d="M2.504 21.866l.526-2.108C3.04 19.719 4 15.823 4 12s-.96-7.719-.97-7.757l-.527-2.109L22.236 12 2.504 21.866zM5.981 13c.072 1.962.36 3.896.756 5.572L17.764 12 6.737 5.428c-.395 1.675-.684 3.61-.756 5.572H14v2H5.981z"/></svg>
+                    <span>Send via DM</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    {% if post.is_reply and post.parent %}
+    <div style="color:var(--text-secondary);font-size:14px;margin-bottom:8px;">
+        Replying to <a href="{% url 'profile_user' post.parent.user.username %}">@{{ post.parent.user.username }}</a>
+    </div>
+    {% endif %}
+
+    {% if post.content %}
+    <div style="font-size:23px;line-height:1.4;margin-bottom:12px;white-space:pre-wrap;">{{ post.get_rendered_content|safe }}</div>
+    {% endif %}
+
+    {% if post.image %}
+    <div class="post-media" style="margin-bottom:12px;"><img src="{{ post.image.url }}" alt=""></div>
+    {% endif %}
+    {% if post.video %}
+    <div class="post-media" style="margin-bottom:12px;"><video controls src="{{ post.video.url }}"></video></div>
+    {% endif %}
+
+    {% if post.is_quote and post.quoted_post %}
+    <div class="quoted-post" style="margin-bottom:12px;">
+        <div class="quoted-header">
+            {% if post.quoted_post.user.profile_picture %}<img src="{{ post.quoted_post.user.profile_picture.url }}" class="quoted-avatar" alt="">{% endif %}
+            <span class="quoted-name">{{ post.quoted_post.user.get_display_name }}</span>
+            <span class="quoted-handle">@{{ post.quoted_post.user.username }}</span>
+        </div>
+        <div class="quoted-content">{{ post.quoted_post.content|truncatewords:50 }}</div>
+    </div>
+    {% endif %}
+
+    <div style="color:var(--text-secondary);font-size:15px;padding:12px 0;border-bottom:1px solid var(--border);">
+        {{ post.created_at|date:"g:i A · M j, Y" }}
+    </div>
+
+    {% if post.reposts_count or post.quotes_count or post.likes_count or post.bookmarks_count %}
+    <div style="display:flex;gap:20px;padding:12px 0;border-bottom:1px solid var(--border);font-size:14px;">
+        {% if post.reposts_count %}<span><strong>{{ post.reposts_count }}</strong> <span style="color:var(--text-secondary);">Reposts</span></span>{% endif %}
+        {% if post.quotes_count %}<span><strong>{{ post.quotes_count }}</strong> <span style="color:var(--text-secondary);">Quotes</span></span>{% endif %}
+        {% if post.likes_count %}<span><strong>{{ post.likes_count }}</strong> <span style="color:var(--text-secondary);">Likes</span></span>{% endif %}
+        {% if post.bookmarks_count %}<span><strong>{{ post.bookmarks_count }}</strong> <span style="color:var(--text-secondary);">Bookmarks</span></span>{% endif %}
+    </div>
+    {% endif %}
+
+    <div class="post-actions" style="max-width:100%;justify-content:space-around;padding:4px 0;border-bottom:1px solid var(--border);">
+        <button class="post-action reply" title="Reply">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M1.751 10c0-4.42 3.584-8 8.005-8h4.366c4.49 0 8.129 3.64 8.129 8.13 0 2.25-.893 4.31-2.457 5.86l-8.214 8.63c-.193.2-.553.06-.553-.23V18.8H9.756C5.293 18.8 1.751 14.87 1.751 10zm8.005-6c-3.317 0-6.005 2.69-6.005 6 0 3.83 2.87 6.8 6.005 6.8h3.62v4.27l6.08-6.39c1.26-1.25 1.99-2.91 1.99-4.68 0-3.39-2.75-6.13-6.13-6.13H9.756z"/></svg>
+        </button>
+        <button class="post-action repost {% if user_reposted %}active{% endif %}" onclick="toggleRepost(this,{{ post.id }})">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M4.5 3.88l4.432 4.14-1.364 1.46L5.5 7.55V16c0 1.1.896 2 2 2H13v2H7.5c-2.209 0-4-1.79-4-4V7.55L1.432 9.48.068 8.02 4.5 3.88zM16.5 6H11V4h5.5c2.209 0 4 1.79 4 4v8.45l2.068-1.93 1.364 1.46-4.432 4.14-4.432-4.14 1.364-1.46 2.068 1.93V8c0-1.1-.896-2-2-2z"/></svg>
+            <span class="count">{{ post.reposts_count|default:"" }}</span>
+        </button>
+        <button class="post-action like {% if user_liked %}active{% endif %}" onclick="toggleLike(this,{{ post.id }})">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16.697 5.5c-1.222-.06-2.679.51-3.89 2.16l-.805 1.09-.806-1.09C9.984 6.01 8.526 5.44 7.304 5.5c-1.243.07-2.349.78-2.91 1.91-.552 1.12-.633 2.78.479 4.82 1.074 1.97 3.257 4.27 7.129 6.61 3.87-2.34 6.052-4.64 7.126-6.61 1.111-2.04 1.03-3.7.477-4.82-.56-1.13-1.666-1.84-2.908-1.91zm4.187 7.69c-1.351 2.48-4.001 5.12-8.379 7.67l-.503.3-.504-.3c-4.379-2.55-7.029-5.19-8.382-7.67-1.36-2.5-1.41-4.86-.514-6.67.887-1.79 2.647-2.91 4.601-3.01 1.651-.09 3.368.56 4.798 2.01 1.429-1.45 3.146-2.1 4.796-2.01 1.954.1 3.714 1.22 4.601 3.01.896 1.81.846 4.17-.514 6.67z"/></svg>
+            <span class="count">{{ post.likes_count|default:"" }}</span>
+        </button>
+        <button class="post-action bookmark {% if user_bookmarked %}active{% endif %}" onclick="toggleBookmark(this,{{ post.id }})">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 4.5C4 3.12 5.119 2 6.5 2h11C18.881 2 20 3.12 20 4.5v18.44l-8-5.71-8 5.71V4.5zM6.5 4c-.276 0-.5.22-.5.5v14.56l6-4.29 6 4.29V4.5c0-.28-.224-.5-.5-.5h-11z"/></svg>
+        </button>
+        <button class="post-action share" onclick="openShareModal({{ post.id }})">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.59l5.7 5.7-1.41 1.42L13 6.41V16h-2V6.41l-3.3 3.3-1.41-1.42L12 2.59zM21 15l-.02 3.51c0 1.38-1.12 2.49-2.5 2.49H5.5C4.12 21 3 19.88 3 18.5V15h2v3.5c0 .28.22.5.5.5h12.98c.28 0 .5-.22.5-.5L19 15h2z"/></svg>
+        </button>
+    </div>
+</div>
+
+<!-- Reply Compose -->
+<div class="compose-box">
+    <div class="compose-avatar">
+        {% if user.profile_picture %}
+            <img src="{{ user.profile_picture.url }}" alt="">
+        {% else %}
+            <div class="avatar-placeholder">{{ user.username.0|upper }}</div>
+        {% endif %}
+    </div>
+    <form class="compose-form" id="replyForm">
+        {% csrf_token %}
+        <textarea name="content" placeholder="Post your reply" id="replyText" maxlength="500"></textarea>
+        <div class="compose-toolbar">
+            <div class="compose-tools">
+                <label title="Hashtag" style="cursor:pointer;" onclick="insertHashtag('replyText')">
+                    <svg viewBox="0 0 24 24" fill="currentColor" style="width:20px;height:20px;"><path d="M10.09 3.098L9.72 7h5.99l.39-4.089 1.99.178L17.72 7H21v2h-3.47l-.48 5H21v2h-4.14l-.39 4.089-1.99-.178L14.85 16h-5.99l-.39 4.089-1.99-.178L6.85 16H3v-2h4.04l.48-5H3V7h4.71l.39-4.089 1.99.178zM14.66 14l.48-5H9.15l-.48 5h5.99z"/></svg>
+                </label>
+                <div id="replyEmojiPicker"></div>
+            </div>
+            <button type="submit" class="compose-submit" id="replyBtn">Reply</button>
+        </div>
+    </form>
+</div>
+
+<!-- Replies -->
+{% for reply in replies %}
+<div class="post-card" data-post-id="{{ reply.id }}">
+    <div class="post-avatar">
+        <a href="{% url 'profile_user' reply.user.username %}">
+        {% if reply.user.profile_picture %}
+            <img src="{{ reply.user.profile_picture.url }}" alt="">
+        {% else %}
+            <div class="avatar-placeholder">{{ reply.user.username.0|upper }}</div>
+        {% endif %}
+        </a>
+    </div>
+    <div class="post-body">
+        <div class="post-header">
+            <a href="{% url 'profile_user' reply.user.username %}" class="display-name" style="color:var(--text-primary);text-decoration:none;">{{ reply.user.get_display_name }}</a>
+            <span class="username">@{{ reply.user.username }}</span>
+            <span class="dot">&middot;</span>
+            <span class="time">{{ reply.created_at|timesince }} ago</span>
+            {% if reply.user == user %}
+            <div class="post-menu-wrap" style="margin-left:auto;position:relative;">
+                <button class="post-more" onclick="event.stopPropagation();togglePostMenu(this)" title="More">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 12c0-1.1.9-2 2-2s2 .9 2 2-.9 2-2 2-2-.9-2-2zm9 2c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm7 0c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2z"/></svg>
+                </button>
+                <div class="post-dropdown">
+                    <button onclick="event.stopPropagation();deletePost({{ reply.id }})">
+                        <svg viewBox="0 0 24 24" fill="currentColor" style="width:18px;height:18px;"><path d="M16 9v10H8V9h8m-1.5-6h-5l-1 1H5v2h14V4h-3.5l-1-1zM18 7H6v12c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7z"/></svg>
+                        <span style="color:var(--red);">Delete Reply</span>
+                    </button>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        <div class="post-content">{{ reply.get_rendered_content|safe }}</div>
+    </div>
+</div>
+{% empty %}
+<div class="empty-state">
+    <p style="color:var(--text-secondary);">No replies yet. Be the first to reply!</p>
+</div>
+{% endfor %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function insertHashtag(inputId) {
+    var el = document.getElementById(inputId);
+    if (!el) return;
+    var pos = el.selectionStart || el.value.length;
+    var before = el.value.substring(0, pos);
+    var after = el.value.substring(pos);
+    var prefix = (before.length > 0 && before[before.length - 1] !== ' ' && before[before.length - 1] !== '\n') ? ' #' : '#';
+    el.value = before + prefix + after;
+    el.selectionStart = el.selectionEnd = pos + prefix.length;
+    el.focus();
+    el.dispatchEvent(new Event('input'));
+}
+
+var replySlot = document.getElementById('replyEmojiPicker');
+if (replySlot) replySlot.appendChild(createEmojiPicker('replyText'));
+
+document.getElementById('replyForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    var text = document.getElementById('replyText').value.trim();
+    if (!text) return;
+    fetch('/posts/{{ post.id }}/reply/', {
+        method: 'POST',
+        headers: {'X-CSRFToken': csrftoken, 'Content-Type': 'application/x-www-form-urlencoded', 'X-Requested-With': 'XMLHttpRequest'},
+        body: 'content=' + encodeURIComponent(text)
+    }).then(function(r) { return r.json(); }).then(function(data) {
+        if (data.status === 'ok') window.location.reload();
+    });
+});
+</script>
+{% endblock %}

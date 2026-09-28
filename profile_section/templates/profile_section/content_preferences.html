@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Content Preferences - TuneFlix</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background-color: #0f0f1a;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .preferences-container {
+            background-color: #1a1a2e;
+            border: 1px solid #2d2b3d;
+            border-radius: 16px;
+            padding: 48px 40px;
+            width: 100%;
+            max-width: 700px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 36px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            color: #ede9fe;
+            margin-bottom: 12px;
+        }
+
+        .header p {
+            color: #8b85a8;
+            font-size: 15px;
+            line-height: 1.6;
+        }
+
+        .messages {
+            margin-bottom: 24px;
+        }
+
+        .alert {
+            padding: 12px 16px;
+            border-radius: 10px;
+            margin-bottom: 12px;
+            font-size: 14px;
+        }
+
+        .alert-success {
+            background-color: #150d30;
+            color: #67e8f9;
+            border: 1px solid #1e1045;
+        }
+
+        .interests-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 16px;
+            margin: 32px 0;
+        }
+
+        .interest-item {
+            position: relative;
+        }
+
+        .interest-item input[type="checkbox"] {
+            display: none;
+        }
+
+        .interest-label {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 24px 16px;
+            border: 2px solid #2d2b3d;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            background-color: #0f0f1a;
+            height: 120px;
+        }
+
+        .interest-label:hover {
+            border-color: #06b6d4;
+            background-color: #1a1040;
+        }
+
+        .interest-item input[type="checkbox"]:checked + .interest-label {
+            border-color: #06b6d4;
+            background-color: #1a1040;
+        }
+
+        .interest-item input[type="checkbox"]:checked + .interest-label::after {
+            content: '✓';
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: #06b6d4;
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .interest-icon {
+            font-size: 36px;
+            margin-bottom: 10px;
+        }
+
+        .interest-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #ede9fe;
+            text-align: center;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 16px;
+            margin-top: 32px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .btn-primary {
+            background-color: #06b6d4;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #0e7490;
+        }
+
+        .btn-secondary {
+            background-color: #0f0f1a;
+            color: #8b85a8;
+            border: 1px solid #2d2b3d;
+        }
+
+        .btn-secondary:hover {
+            background-color: #2d2b3d;
+        }
+
+        .selection-count {
+            text-align: center;
+            color: #8b85a8;
+            font-size: 14px;
+            margin-top: 20px;
+            font-weight: 500;
+        }
+
+        .selection-count span {
+            color: #67e8f9;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <a href="javascript:history.back()" title="Go back" style="position:fixed;top:20px;left:20px;z-index:100;width:40px;height:40px;background:#1a1a2e;border:1px solid #2d2b3d;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#8b85a8;text-decoration:none;transition:all 0.2s;box-shadow:0 2px 8px rgba(0,0,0,0.3);" onmouseover="this.style.color='#ede9fe';this.style.background='#2d2b3d'" onmouseout="this.style.color='#8b85a8';this.style.background='#1a1a2e'">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+    </a>
+    <div class="preferences-container">
+        <div class="header">
+            <h1>Choose Your Interests</h1>
+            <p>Select topics you'd like to see in your feed. You can change these later in settings.</p>
+        </div>
+
+        {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <form method="POST" action="{% url 'content_preferences' %}" id="preferencesForm">
+            {% csrf_token %}
+
+            <div class="interests-grid">
+                {% for value, label in form.fields.interests.choices %}
+                <div class="interest-item">
+                    <input type="checkbox"
+                           name="interests"
+                           value="{{ value }}"
+                           id="interest_{{ value }}"
+                           {% if value in form.initial.interests %}checked{% endif %}
+                           class="interest-checkbox">
+                    <label for="interest_{{ value }}" class="interest-label">
+                        <span class="interest-icon">
+                            {% if value == 'travel' %}✈️
+                            {% elif value == 'nature' %}🌿
+                            {% elif value == 'food' %}🍕
+                            {% elif value == 'movies' %}🎬
+                            {% elif value == 'music' %}🎵
+                            {% elif value == 'sports' %}⚽
+                            {% elif value == 'fashion' %}👗
+                            {% elif value == 'art' %}🎨
+                            {% elif value == 'technology' %}💻
+                            {% elif value == 'fitness' %}💪
+                            {% elif value == 'photography' %}📷
+                            {% elif value == 'gaming' %}🎮
+                            {% elif value == 'books' %}📚
+                            {% elif value == 'pets' %}🐾
+                            {% elif value == 'business' %}💼
+                            {% endif %}
+                        </span>
+                        <span class="interest-name">{{ label }}</span>
+                    </label>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="selection-count">
+                <span id="selectedCount">0</span> interests selected
+            </div>
+
+            <div class="buttons">
+                <button type="button" class="btn btn-secondary" onclick="window.location.href='{% url 'home' %}'">
+                    Skip for now
+                </button>
+                <button type="submit" class="btn btn-primary">
+                    Continue
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        function updateCount() {
+            const checkboxes = document.querySelectorAll('.interest-checkbox:checked');
+            document.getElementById('selectedCount').textContent = checkboxes.length;
+        }
+
+        updateCount();
+
+        document.querySelectorAll('.interest-checkbox').forEach(checkbox => {
+            checkbox.addEventListener('change', updateCount);
+        });
+    </script>
+</body>
+</html>

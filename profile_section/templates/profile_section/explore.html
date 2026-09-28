@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% block title %}Explore - VYRO{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Explore</h1>
+</div>
+
+<div style="padding:0 16px;">
+    <div class="search-box" style="margin:16px 0;">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10.25 3.75c-3.59 0-6.5 2.91-6.5 6.5s2.91 6.5 6.5 6.5c1.795 0 3.419-.726 4.596-1.904 1.178-1.177 1.904-2.801 1.904-4.596 0-3.59-2.91-6.5-6.5-6.5zm-8.5 6.5c0-4.694 3.806-8.5 8.5-8.5s8.5 3.806 8.5 8.5c0 1.986-.682 3.815-1.824 5.262l4.781 4.781-1.414 1.414-4.781-4.781c-1.447 1.142-3.276 1.824-5.262 1.824-4.694 0-8.5-3.806-8.5-8.5z"/></svg>
+        <form action="{% url 'search' %}" method="GET">
+            <input type="text" name="q" placeholder="Search VYRO">
+        </form>
+    </div>
+</div>
+
+{% if trending_hashtags %}
+<div style="padding:16px;border-bottom:1px solid var(--border);">
+    <h2 style="font-size:20px;font-weight:700;margin-bottom:16px;">Trending Topics</h2>
+    {% for tag in trending_hashtags %}
+    <a href="{% url 'hashtag_view' tag.name %}" class="trending-item" style="display:block;padding:12px 0;border-bottom:1px solid var(--border);">
+        <div class="trending-name">#{{ tag.name }}</div>
+        <div class="trending-count">{{ tag.post_count }} post{{ tag.post_count|pluralize }}</div>
+    </a>
+    {% endfor %}
+</div>
+{% endif %}
+
+<div style="padding:0 0 16px;">
+    <h2 style="font-size:20px;font-weight:700;padding:16px;">Trending Posts</h2>
+    {% for post in trending_posts %}
+        {% include 'includes/post_card.html' with post=post liked_ids=liked_ids reposted_ids=reposted_ids bookmarked_ids=bookmarked_ids %}
+    {% empty %}
+    <div class="empty-state"><p>No trending posts yet. Start posting!</p></div>
+    {% endfor %}
+</div>
+{% endblock %}

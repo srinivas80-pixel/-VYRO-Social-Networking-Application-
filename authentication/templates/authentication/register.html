@@ -1,0 +1,76 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VYRO - Sign Up</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{min-height:100vh;background:#0a0e1a;color:#f1f5f9;font-family:'Inter',sans-serif;display:flex;align-items:center;justify-content:center;position:relative}
+        body::before{content:'';position:fixed;inset:0;background:url("{% static 'images/register-vyro.jpeg' %}") center/cover no-repeat;z-index:-2}
+        body::after{content:'';position:fixed;inset:0;background:rgba(10,14,26,0.75);z-index:-1}
+        .auth-container{display:flex;width:100%;max-width:1000px;min-height:560px;margin:20px}
+        .auth-brand{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:48px}
+        .logo-big{width:80px;height:80px;border-radius:50%;overflow:hidden;margin-bottom:24px;box-shadow:0 0 40px rgba(59,130,246,.3)}
+        .logo-big img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+        .brand-name{font-size:52px;font-weight:700;margin-bottom:8px;background:linear-gradient(135deg,#3b82f6,#06b6d4);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+        .brand-tagline{color:#64748b;font-size:18px}
+        .auth-form-section{flex:1;display:flex;align-items:center;justify-content:center;padding:48px}
+        .auth-form-box{width:100%;max-width:380px}
+        .auth-form-box h1{font-size:30px;font-weight:700;margin-bottom:32px}
+        .form-group{margin-bottom:20px}
+        .form-group label{display:block;color:#64748b;font-size:13px;margin-bottom:6px}
+        .form-group input{width:100%;padding:14px 16px;background:#0f1525;border:1px solid #1e293b;border-radius:8px;color:#f1f5f9;font-size:16px;outline:none;transition:border .2s}
+        .form-group input:focus{border-color:#3b82f6}
+        .auth-btn{width:100%;padding:14px;background:#3b82f6;color:#fff;border:none;border-radius:30px;font-size:16px;font-weight:700;cursor:pointer;transition:all .2s;margin-top:8px;box-shadow:0 0 20px rgba(59,130,246,.25)}
+        .auth-btn:hover{background:#2563eb;box-shadow:0 0 30px rgba(59,130,246,.4)}
+        .auth-links{margin-top:20px;text-align:center;font-size:15px;color:#64748b}
+        .auth-links a{color:#3b82f6}
+        .error-list{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.2);border-radius:8px;padding:12px 16px;margin-bottom:20px;color:#ef4444;font-size:14px;list-style:none}
+        @media(max-width:768px){.auth-container{flex-direction:column}.auth-brand{padding:32px 24px}.auth-form-section{padding:24px}.brand-name{font-size:36px}}
+    </style>
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-brand">
+            <div class="logo-big"><img src="{% static 'images/vyro-logo.jpeg' %}" alt="VYRO"></div>
+            <div class="brand-name">VYRO</div>
+            <div class="brand-tagline">Your voice, your world.</div>
+        </div>
+        <div class="auth-form-section">
+            <div class="auth-form-box">
+                <h1>Create your account</h1>
+                {% if form.errors %}
+                <ul class="error-list">
+                    {% for field in form %}{% for error in field.errors %}<li>{{ error }}</li>{% endfor %}{% endfor %}
+                    {% for error in form.non_field_errors %}<li>{{ error }}</li>{% endfor %}
+                </ul>
+                {% endif %}
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label>Username</label>
+                        <input type="text" name="username" placeholder="Choose a username" value="{{ form.username.value|default:'' }}" required autofocus>
+                    </div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" name="email" placeholder="Email address" value="{{ form.email.value|default:'' }}" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password" name="password1" placeholder="Create a password" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Confirm Password</label>
+                        <input type="password" name="password2" placeholder="Confirm password" required>
+                    </div>
+                    <button type="submit" class="auth-btn">Sign Up</button>
+                </form>
+                <div class="auth-links">Already have an account? <a href="{% url 'login' %}">Log in</a></div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

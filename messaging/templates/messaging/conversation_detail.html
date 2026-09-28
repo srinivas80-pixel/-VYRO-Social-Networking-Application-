@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+{% block title %}{% if other_user %}{{ other_user.get_display_name }}{% else %}Conversation{% endif %} - VYRO{% endblock %}
+
+{% block extra_css %}
+.chat-messages{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:4px;min-height:calc(100vh - 200px)}
+.chat-msg{max-width:75%;padding:12px 16px;border-radius:24px;font-size:15px;line-height:1.4;word-wrap:break-word}
+.chat-msg.sent{background:var(--accent);color:#fff;align-self:flex-end;border-bottom-right-radius:4px}
+.chat-msg.received{background:var(--bg-tertiary);color:var(--text-primary);align-self:flex-start;border-bottom-left-radius:4px}
+.chat-msg .msg-time{font-size:12px;opacity:.7;margin-top:4px;display:block}
+.chat-msg a.shared-post-link{display:block;margin-top:6px;padding:8px 12px;background:rgba(255,255,255,.1);border-radius:12px;color:inherit;text-decoration:none;font-size:13px;border:1px solid rgba(255,255,255,.15)}
+.chat-msg.received a.shared-post-link{background:var(--bg-hover);border-color:var(--border)}
+.chat-msg a.shared-post-link:hover{opacity:.8}
+.chat-input{display:flex;gap:8px;padding:12px 16px;border-top:1px solid var(--border);position:sticky;bottom:0;background:var(--bg-primary);align-items:flex-end}
+.chat-input input{flex:1;padding:12px 16px;background:var(--bg-tertiary);border:1px solid var(--border);border-radius:24px;color:var(--text-primary);font-size:15px;outline:none}
+.chat-input input:focus{border-color:var(--accent)}
+.chat-input button.send-btn{background:var(--accent);color:#fff;border:none;border-radius:50%;width:40px;height:40px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.chat-input button.send-btn:hover{background:var(--accent-hover)}
+.chat-input button.send-btn svg{width:20px;height:20px}
+.chat-input .emoji-picker-wrap{flex-shrink:0}
+.chat-input .emoji-picker{bottom:100%;left:auto;right:0}
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="page-header-row">
+        <button class="back-btn" onclick="window.location.href='{% url 'messages_page' %}'">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M7.414 13l5.043 5.04-1.414 1.42L3.586 12l7.457-7.46 1.414 1.42L7.414 11H21v2H7.414z"/></svg>
+        </button>
+        {% if other_user %}
+        <a href="{% url 'profile_user' other_user.username %}" style="display:flex;align-items:center;gap:8px;text-decoration:none;">
+            {% if other_user.profile_picture %}
+                <img src="{{ other_user.profile_picture.url }}" style="width:32px;height:32px;border-radius:50%;object-fit:cover" alt="">
+            {% else %}
+                <div class="avatar-placeholder" style="width:32px;height:32px;font-size:14px;">{{ other_user.username.0|upper }}</div>
+            {% endif %}
+            <div>
+                <div style="font-weight:700;color:var(--text-primary);font-size:15px;">{{ other_user.get_display_name }}</div>
+                <div style="color:var(--text-secondary);font-size:13px;">@{{ other_user.username }}</div>
+            </div>
+        </a>
+        {% endif %}
+    </div>
+</div>
+
+<div class="chat-messages" id="chatMessages">
+    {% for msg in messages %}
+    <div class="chat-msg {% if msg.sender == user %}sent{% else %}received{% endif %}" data-msg-text="{{ msg.text }}">
+        <span class="msg-text">{{ msg.text }}</span>
+        <span class="msg-time">{{ msg.created_at|date:"g:i A" }}</span>
+    </div>
+    {% empty %}
+    <div style="text-align:center;color:var(--text-secondary);margin-top:48px;">
+        <p>No messages yet. Say hello!</p>
+    </div>
+    {% endfor %}
+</div>
+
+<form method="POST" class="chat-input">
+    {% csrf_token %}
+    <input type="text" name="message" id="msgInput" placeholder="Start a new message" autocomplete="off" autofocus required>
+    <div id="msgEmojiPicker"></div>
+    <button type="submit" class="send-btn">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M2.504 21.866l.526-2.108C3.04 19.719 4 15.823 4 12s-.96-7.719-.97-7.757l-.527-2.109L22.236 12 2.504 21.866zM5.981 13c.072 1.962.36 3.896.756 5.572L17.764 12 6.737 5.428c-.395 1.675-.684 3.61-.756 5.572H14v2H5.981z"/></svg>
+    </button>
+</form>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+var chatEl = document.getElementById('chatMessages');
+
+document.querySelectorAll('.chat-msg .msg-text').forEach(function(el) {
+    var text = el.textContent;
+    var postMatch = text.match(/(https?:\/\/[^\s]+\/posts\/(\d+)\/)/);
+    if (postMatch) {
+        var url = postMatch[1];
+        var caption = text.replace(url, '').replace(/["\n]/g, '').trim();
+        var html = '';
+        if (caption) {
+            html += '<span>' + caption.replace(/</g, '&lt;') + '</span>';
+        }
+        html += '<a class="shared-post-link" href="' + url + '">'
+            + '<svg viewBox="0 0 24 24" fill="currentColor" style="width:16px;height:16px;vertical-align:middle;margin-right:6px;opacity:0.7;"><path d="M23 3c-6.62-.1-10.38 2.421-13.05 6.03C7.29 12.61 6.8 17 6.8 17s-1.83-1.09-3.6-.79c0 0-.55 2.19.31 4.19.87 2 3.1 2.53 3.1 2.53s.14-.93.35-2.29c.22-1.37 1.57-4.52 3.83-7.11C13.25 10.74 16.39 8.5 23 8.5V3z"/></svg>'
+            + 'View tweet</a>';
+        el.innerHTML = html;
+    }
+});
+
+if (chatEl) chatEl.scrollTop = chatEl.scrollHeight;
+
+var msgSlot = document.getElementById('msgEmojiPicker');
+if (msgSlot) msgSlot.appendChild(createEmojiPicker('msgInput'));
+</script>
+{% endblock %}

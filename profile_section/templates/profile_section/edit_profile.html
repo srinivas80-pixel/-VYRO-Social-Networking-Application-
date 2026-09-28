@@ -1,0 +1,229 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Edit Profile - VYRO{% endblock %}
+
+{% block extra_css %}
+.edit-header{position:relative;margin-bottom:60px}
+.edit-cover{height:200px;background:var(--bg-tertiary);position:relative;cursor:pointer;overflow:hidden;display:block}
+.edit-cover img{width:100%;height:100%;object-fit:cover;display:block}
+.edit-cover .cover-overlay{position:absolute;inset:0;background:rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center;gap:8px;opacity:0;transition:opacity .2s}
+.edit-cover:hover .cover-overlay{opacity:1}
+.edit-cover .cover-overlay svg{width:28px;height:28px;color:#fff}
+.edit-cover .cover-overlay span{color:#fff;font-size:14px;font-weight:600}
+.edit-avatar-wrap{width:120px;height:120px;border-radius:50%;border:4px solid var(--bg-primary);overflow:hidden;background:var(--bg-tertiary);position:absolute;bottom:-50px;left:20px;z-index:5;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.3)}
+.edit-avatar-wrap img{width:100%;height:100%;object-fit:cover;display:block}
+.edit-avatar-wrap .avatar-placeholder{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:36px;font-weight:700;color:var(--text-secondary);background:var(--bg-tertiary)}
+.edit-avatar-wrap .avatar-overlay{position:absolute;inset:0;background:rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:4px;opacity:0;transition:opacity .2s;border-radius:50%}
+.edit-avatar-wrap:hover .avatar-overlay{opacity:1}
+.edit-avatar-wrap .avatar-overlay svg{width:24px;height:24px;color:#fff}
+.edit-avatar-wrap .avatar-overlay span{color:#fff;font-size:10px;font-weight:600}
+.edit-form{padding:16px}
+.edit-form .form-group{margin-bottom:20px}
+.edit-form .form-group label{display:block;color:var(--text-secondary);font-size:13px;margin-bottom:6px;font-weight:500}
+.edit-form .form-group input,.edit-form .form-group textarea{width:100%;padding:12px 16px;background:var(--bg-primary);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);font-size:16px;outline:none;transition:border .2s;font-family:inherit}
+.edit-form .form-group input:focus,.edit-form .form-group textarea:focus{border-color:var(--accent)}
+.edit-form .form-group textarea{resize:vertical;min-height:80px}
+.edit-form .form-group .char-hint{font-size:12px;color:var(--text-secondary);text-align:right;margin-top:4px}
+.edit-form .form-group .field-error{color:var(--red);font-size:13px;margin-top:4px}
+.edit-form .form-group .username-prefix{display:flex;align-items:center;gap:0}
+.edit-form .form-group .username-prefix span{padding:12px 0 12px 16px;background:var(--bg-primary);border:1px solid var(--border);border-right:none;border-radius:8px 0 0 8px;color:var(--text-secondary);font-size:16px}
+.edit-form .form-group .username-prefix input{border-radius:0 8px 8px 0}
+.save-btn{width:100%;padding:14px;background:var(--accent);color:#fff;border:none;border-radius:30px;font-size:16px;font-weight:700;cursor:pointer;transition:background .2s;margin-top:8px}
+.save-btn:hover{background:var(--accent-hover)}
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="page-header-row">
+        <button class="back-btn" onclick="history.back()">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M7.414 13l5.043 5.04-1.414 1.42L3.586 12l7.457-7.46 1.414 1.42L7.414 11H21v2H7.414z"/></svg>
+        </button>
+        <h1>Edit profile</h1>
+    </div>
+</div>
+
+<form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <div class="edit-header">
+        <label class="edit-cover" for="coverInput">
+            {% if user.cover_photo %}
+            <img src="{{ user.cover_photo.url }}" alt="" id="coverPreview">
+            {% else %}
+            <img src="{% static 'images/vyro-home.jpeg' %}" alt="" id="coverPreview">
+            {% endif %}
+            <div class="cover-overlay">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 2L7.17 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2h-3.17L15 2H9zm3 15c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5z"/></svg>
+                <span>Change Cover</span>
+            </div>
+            <input type="file" name="cover_photo" accept="image/*" id="coverInput" style="display:none;" onchange="previewImage(this,'coverPreview')">
+        </label>
+
+        <label class="edit-avatar-wrap" for="avatarInput">
+            {% if user.profile_picture %}
+            <img src="{{ user.profile_picture.url }}" alt="" id="avatarPreview">
+            {% else %}
+            <div class="avatar-placeholder" id="avatarPlaceholder">{{ user.username.0|upper }}</div>
+            <img src="" alt="" id="avatarPreview" style="display:none;">
+            {% endif %}
+            <div class="avatar-overlay">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 2L7.17 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2h-3.17L15 2H9zm3 15c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5z"/></svg>
+                <span>Edit</span>
+            </div>
+            <input type="file" name="profile_picture" accept="image/*" id="avatarInput" style="display:none;" onchange="previewAvatar(this)">
+        </label>
+    </div>
+
+    <div class="edit-form">
+        <div class="form-group">
+            <label>Display Name</label>
+            <input type="text" name="display_name" value="{{ form.display_name.value|default:'' }}" placeholder="Display Name" maxlength="100">
+        </div>
+        <div class="form-group">
+            <label>Username</label>
+            <div class="username-prefix">
+                <span>@</span>
+                <input type="text" name="username" value="{{ form.username.value|default:'' }}" placeholder="username" maxlength="150">
+            </div>
+            {% if form.username.errors %}
+            <div class="field-error">{{ form.username.errors.0 }}</div>
+            {% endif %}
+        </div>
+        <div class="form-group">
+            <label>Bio</label>
+            <textarea name="bio" rows="3" placeholder="Tell the world about yourself" maxlength="500">{{ form.bio.value|default:'' }}</textarea>
+            <div class="char-hint"><span id="bioCount">{{ form.bio.value|default:''|length }}</span>/500</div>
+        </div>
+        <div class="form-group">
+            <label>Date of Birth</label>
+            <input type="hidden" name="date_of_birth" id="dobHidden" value="{{ form.date_of_birth.value|default:'' }}">
+            <div style="display:flex;gap:10px;">
+                <select id="dobMonth" style="flex:1;padding:12px 16px;background:var(--bg-primary);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);font-size:15px;outline:none;appearance:none;cursor:pointer;background-image:url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath fill='%236b6560' d='M5 6L0 0h10z'/%3E%3C/svg%3E&quot;);background-repeat:no-repeat;background-position:right 12px center;" onchange="updateDob()">
+                    <option value="">Month</option>
+                    <option value="1">January</option><option value="2">February</option><option value="3">March</option>
+                    <option value="4">April</option><option value="5">May</option><option value="6">June</option>
+                    <option value="7">July</option><option value="8">August</option><option value="9">September</option>
+                    <option value="10">October</option><option value="11">November</option><option value="12">December</option>
+                </select>
+                <select id="dobDay" style="flex:0.6;padding:12px 16px;background:var(--bg-primary);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);font-size:15px;outline:none;appearance:none;cursor:pointer;background-image:url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath fill='%236b6560' d='M5 6L0 0h10z'/%3E%3C/svg%3E&quot;);background-repeat:no-repeat;background-position:right 12px center;" onchange="updateDob()">
+                    <option value="">Day</option>
+                </select>
+                <select id="dobYear" style="flex:0.8;padding:12px 16px;background:var(--bg-primary);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);font-size:15px;outline:none;appearance:none;cursor:pointer;background-image:url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath fill='%236b6560' d='M5 6L0 0h10z'/%3E%3C/svg%3E&quot;);background-repeat:no-repeat;background-position:right 12px center;" onchange="updateDob()">
+                    <option value="">Year</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group">
+            <label>Location</label>
+            <input type="text" name="location" value="{{ form.location.value|default:'' }}" placeholder="Location" maxlength="100">
+        </div>
+        <div class="form-group">
+            <label>Website</label>
+            <input type="url" name="website" value="{{ form.website.value|default:'' }}" placeholder="https://example.com">
+        </div>
+        <button type="submit" class="save-btn">Save</button>
+    </div>
+</form>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function previewImage(input, previewId) {
+    if (input.files && input.files[0]) {
+        var reader = new FileReader();
+        var preview = document.getElementById(previewId);
+        reader.onload = function(e) {
+            preview.src = e.target.result;
+            preview.style.display = 'block';
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+function previewAvatar(input) {
+    if (input.files && input.files[0]) {
+        var reader = new FileReader();
+        var preview = document.getElementById('avatarPreview');
+        reader.onload = function(e) {
+            preview.src = e.target.result;
+            preview.style.display = 'block';
+            var ph = document.getElementById('avatarPlaceholder');
+            if (ph) ph.style.display = 'none';
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+var bioField = document.querySelector('textarea[name="bio"]');
+if (bioField) {
+    bioField.addEventListener('input', function() {
+        document.getElementById('bioCount').textContent = this.value.length;
+    });
+}
+
+(function() {
+    var daySelect = document.getElementById('dobDay');
+    var monthSelect = document.getElementById('dobMonth');
+    var yearSelect = document.getElementById('dobYear');
+    var hidden = document.getElementById('dobHidden');
+
+    for (var d = 1; d <= 31; d++) {
+        var opt = document.createElement('option');
+        opt.value = d;
+        opt.textContent = d;
+        daySelect.appendChild(opt);
+    }
+
+    var currentYear = new Date().getFullYear();
+    for (var y = currentYear; y >= 1920; y--) {
+        var opt = document.createElement('option');
+        opt.value = y;
+        opt.textContent = y;
+        yearSelect.appendChild(opt);
+    }
+
+    var val = hidden.value;
+    if (val) {
+        var parts = val.split('-');
+        if (parts.length === 3) {
+            yearSelect.value = parseInt(parts[0]);
+            monthSelect.value = parseInt(parts[1]);
+            daySelect.value = parseInt(parts[2]);
+        }
+    }
+
+    monthSelect.addEventListener('change', updateDays);
+    yearSelect.addEventListener('change', updateDays);
+
+    function updateDays() {
+        var m = parseInt(monthSelect.value);
+        var y = parseInt(yearSelect.value);
+        var current = parseInt(daySelect.value);
+        var max = 31;
+        if (m) {
+            if ([4,6,9,11].indexOf(m) !== -1) max = 30;
+            else if (m === 2) {
+                max = (y && ((y % 4 === 0 && y % 100 !== 0) || y % 400 === 0)) ? 29 : 28;
+            }
+        }
+        while (daySelect.options.length > 1) daySelect.remove(1);
+        for (var d = 1; d <= max; d++) {
+            var opt = document.createElement('option');
+            opt.value = d;
+            opt.textContent = d;
+            daySelect.appendChild(opt);
+        }
+        if (current && current <= max) daySelect.value = current;
+    }
+})();
+
+function updateDob() {
+    var m = document.getElementById('dobMonth').value;
+    var d = document.getElementById('dobDay').value;
+    var y = document.getElementById('dobYear').value;
+    if (m && d && y) {
+        document.getElementById('dobHidden').value = y + '-' + (m < 10 ? '0' + m : m) + '-' + (d < 10 ? '0' + d : d);
+    } else {
+        document.getElementById('dobHidden').value = '';
+    }
+}
+</script>
+{% endblock %}

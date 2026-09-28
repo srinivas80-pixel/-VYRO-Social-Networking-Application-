@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% block title %}Quote Post - VYRO{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="page-header-row">
+        <button class="back-btn" onclick="history.back()">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M7.414 13l5.043 5.04-1.414 1.42L3.586 12l7.457-7.46 1.414 1.42L7.414 11H21v2H7.414z"/></svg>
+        </button>
+        <h1>Quote Post</h1>
+    </div>
+</div>
+
+<div class="compose-box" style="flex-direction:column;">
+    <form method="POST" style="width:100%;">
+        {% csrf_token %}
+        <div style="display:flex;gap:12px;margin-bottom:12px;">
+            <div class="compose-avatar">
+                {% if user.profile_picture %}
+                    <img src="{{ user.profile_picture.url }}" alt="">
+                {% else %}
+                    <div class="avatar-placeholder">{{ user.username.0|upper }}</div>
+                {% endif %}
+            </div>
+            <textarea name="content" placeholder="Add a comment" style="flex:1;background:transparent;border:none;color:var(--text-primary);font-size:20px;resize:none;outline:none;min-height:80px;" required maxlength="500"></textarea>
+        </div>
+        <div class="quoted-post" style="margin:0 0 12px;">
+            <div class="quoted-header">
+                {% if quoted_post.user.profile_picture %}<img src="{{ quoted_post.user.profile_picture.url }}" class="quoted-avatar" alt="">{% endif %}
+                <span class="quoted-name">{{ quoted_post.user.get_display_name }}</span>
+                <span class="quoted-handle">@{{ quoted_post.user.username }}</span>
+            </div>
+            <div class="quoted-content">{{ quoted_post.content|truncatewords:30 }}</div>
+        </div>
+        <div style="display:flex;justify-content:flex-end;">
+            <button type="submit" class="compose-submit">Post</button>
+        </div>
+    </form>
+</div>
+{% endblock %}
